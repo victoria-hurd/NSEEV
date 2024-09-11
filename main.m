@@ -1,6 +1,6 @@
-% AUTHORS: Sarah Leary, Victoria Hurd
+% AUTHORS: Sarah Leary, Victoria Hurd, Abby Rindfuss
 % DATE CREATED: 9/10/2024
-% DATE LAST MODIFIED: 9/10/2024
+% DATE LAST MODIFIED: 9/11/2024
 % PROJECT: NSEEV Project
 % CLASS: Human Operation of Aerospace Vehicles
 
@@ -44,5 +44,15 @@ Ef_CD = 4.5;
 
 
 %% Modeling
-n_fix = 10;
-fix_time = makedist('Normal','mu', 0, 'sigma',0.5);
+    % fixation --> saccadic eye movement --> fixation --> and so on
+
+n_fix = 10; % number of fixations
+
+% Each fixation time modeled as a random variable with lognormal
+% distribution 
+fix_time = makedist('Logormal','mu', 0, 'sigma',0.5);
+
+% The duration of each saccadic eye movement can be assumed to be normally
+% distributed
+sac_time = makedist('Normal','mu',0.03,'sigma',0.003);
+
