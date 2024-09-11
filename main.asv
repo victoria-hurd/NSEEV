@@ -7,11 +7,13 @@
 %% Housekeeping
 clear;clc;close all
 
+%% Modeling
+n_fix = 10;
+fix_time = makedist('Normal','mu', 0, 'sigma',0.5);
 
 %% Fixed Values
 
-% 4 AOIs
-% Each AOI has a salience, expectancy, and value
+% 4 AOIs:
     % A (primary display)
     S_A = 2;
     Ex_A = 4;
@@ -39,10 +41,4 @@ Ef_AD = 5;
 Ef_BC = 3;
 Ef_BD = 6;
 Ef_CD = 4.5;
-% Also, we are assuming that effort to transition is symmetric
-% meaning Ef_AB = Ef_BA, etc
 
-
-%% Modeling
-n_fix = 10;
-fix_time = makedist('Normal','mu', 0, 'sigma',0.5);
