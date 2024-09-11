@@ -1,19 +1,17 @@
-% AUTHORS: Sarah Leary, Victoria Hurd
+% AUTHORS: Sarah Leary, Victoria Hurd, Abby Rindfuss
 % DATE CREATED: 9/10/2024
-% DATE LAST MODIFIED: 9/10/2024
+% DATE LAST MODIFIED: 9/11/2024
 % PROJECT: NSEEV Project
 % CLASS: Human Operation of Aerospace Vehicles
 
 %% Housekeeping
 clear;clc;close all
 
-%% Modeling
-n_fix = 10;
-fix_time = makedist('Normal','mu', 0, 'sigma',0.5);
 
 %% Fixed Values
 
-% 4 AOIs:
+% 4 AOIs
+% Each AOI has a salience, expectancy, and value
     % A (primary display)
     S_A = 2;
     Ex_A = 4;
@@ -41,4 +39,31 @@ Ef_AD = 5;
 Ef_BC = 3;
 Ef_BD = 6;
 Ef_CD = 4.5;
+% Also, we are assuming that effort to transition is symmetric
+% meaning Ef_AB = Ef_BA, etc
 
+
+%% Distributions
+    % fixation --> saccadic eye movement --> fixation --> and so on
+
+n_fix = 10; % number of fixations
+
+% Each fixation time modeled as a random variable with lognormal
+% distribution 
+fix_dist = makedist('Lognormal','mu', 0, 'sigma',0.5);
+
+% The duration of each saccadic eye movement can be assumed to be normally
+% distributed
+sac_time = makedist('Normal','mu',0.03,'sigma',0.003);
+
+
+%% 1. Simulation of the Eye Position
+% start each scan at A
+% eye position as a function of time for 10 fixations
+    %%% did we ask Torin about how to choose the sequence? ie random,
+    %%% optimize, or we decide? For now, I'm just picking A, B, C, D
+
+% timevec will be like [fix_time, sac_time, fix_time, sac_time ...]
+
+rng('default')
+fix_time = random(fix_dist,10,)
