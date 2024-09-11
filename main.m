@@ -43,16 +43,39 @@ Ef_CD = 4.5;
 % meaning Ef_AB = Ef_BA, etc
 
 
-%% Modeling
+%% Distributions
     % fixation --> saccadic eye movement --> fixation --> and so on
 
 n_fix = 10; % number of fixations
 
 % Each fixation time modeled as a random variable with lognormal
 % distribution 
-fix_time = makedist('Logormal','mu', 0, 'sigma',0.5);
+fix_dist = makedist('Lognormal','mu', 0, 'sigma',0.5);
 
 % The duration of each saccadic eye movement can be assumed to be normally
 % distributed
-sac_time = makedist('Normal','mu',0.03,'sigma',0.003);
+sac_dist = makedist('Normal','mu',0.03,'sigma',0.003);
+
+fix_time = random(fix_dist,10,1);
+% now visualizing the lognormal distribution:
+figure(1)
+subplot(1,2,1)
+histfit(fix_time,3,'lognormal')
+title('Fixation Time Lognormal Dist')
+
+sac_time = random(sac_dist,10,1);
+% now visualizing the lognormal distribution:
+subplot(1,2,2)
+histfit(sac_time,3,'normal')
+title('Saccade Time Normal Dist')
+sgtitle('Distributions for 10 Random Numbers')
+
+%% 1. Simulation of the Eye Position
+% start each scan at A
+% eye position as a function of time for 10 fixations
+    %%% did we ask Torin about how to choose the sequence? ie random,
+    %%% optimize, or we decide? For now, I'm just picking A, B, C, D
+
+% timevec will be like [fix_time, sac_time, fix_time, sac_time ...]
+
 
