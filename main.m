@@ -71,6 +71,11 @@ histfit(sac_time,3,'normal')
 title('Saccade Time Normal Dist')
 sgtitle('Distributions for 10 Random Numbers')
 
+%% NSEEV Probability Model for Next Display: 
+%Need to write a function that can take in current display and export next
+%display
+
+
 %% 1. Simulation of the Eye Position
 % start each scan at A
 % eye position as a function of time for 10 fixations
@@ -90,6 +95,7 @@ eye_position = zeros(2 * n_fix-1, 1);
 
 % Start at display A
 current_time = 0;
+current_display=1;
 
 for i = 1:n_fix
     % Fixation on display
