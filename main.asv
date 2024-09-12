@@ -46,7 +46,7 @@ Ef_CD = 4.5;
 %% Distributions
     % fixation --> saccadic eye movement --> fixation --> and so on
 
-n_fix = 11; % number of fixations
+n_fix = 10; % number of fixations
 
 % Each fixation time modeled as a random variable with lognormal
 % distribution 
@@ -57,19 +57,24 @@ fix_dist = makedist('Lognormal','mu', 0, 'sigma',0.5);
 sac_dist = makedist('Normal','mu',0.03,'sigma',0.003);
 
 % rng('default') % uncomment this if we want these values to never change
-fix_time = random(fix_dist,10,1);
+fix_time = random(fix_dist,n_fix,1);
 % now visualizing the lognormal distribution:
 figure(1)
 subplot(1,2,1)
 histfit(fix_time,3,'lognormal')
 title('Fixation Time Lognormal Dist')
 
-sac_time = random(sac_dist,10,1);
+sac_time = random(sac_dist,n_fix,1);
 % now visualizing the lognormal distribution:
 subplot(1,2,2)
 histfit(sac_time,3,'normal')
 title('Saccade Time Normal Dist')
 sgtitle('Distributions for 10 Random Numbers')
+
+%% NSEEV Probability Model for Next Display: 
+%Need to write a function that can take in current display and export next
+%display
+
 
 %% 1. Simulation of the Eye Position
 % start each scan at A
