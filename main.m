@@ -1,6 +1,6 @@
-% AUTHORS: Sarah Leary, Victoria Hurd, Abby Rindfuss
+% AUTHORS: Sarah Leary, Victoria Hurd, Abby Rindfuss, Lena Obaid
 % DATE CREATED: 9/10/2024
-% DATE LAST MODIFIED: 9/11/2024
+% DATE LAST MODIFIED: 9/12/2024
 % PROJECT: NSEEV Project
 % CLASS: Human Operation of Aerospace Vehicles
 
@@ -57,14 +57,14 @@ fix_dist = makedist('Lognormal','mu', 0, 'sigma',0.5);
 sac_dist = makedist('Normal','mu',0.03,'sigma',0.003);
 
 % rng('default') % uncomment this if we want these values to never change
-fix_time = random(fix_dist,10,1);
+fix_time = random(fix_dist,n_fix,1);
 % now visualizing the lognormal distribution:
 figure(1)
 subplot(1,2,1)
 histfit(fix_time,3,'lognormal')
 title('Fixation Time Lognormal Dist')
 
-sac_time = random(sac_dist,10,1);
+sac_time = random(sac_dist,n_fix,1);
 % now visualizing the lognormal distribution:
 subplot(1,2,2)
 histfit(sac_time,3,'normal')
@@ -79,4 +79,51 @@ sgtitle('Distributions for 10 Random Numbers')
 
 % timevec will be like [fix_time, sac_time, fix_time, sac_time ...]
 
+%% 1. Simulation of the Eye Position
+% Sequence of displays: A -> B -> C -> D
+sequence = {'A', 'B', 'C', 'D'};
+seq_numeric = [1, 2, 3, 4];  % Mapping A = 1, B = 2, C = 3, D = 4 for plotting along the y axis
 
+% Initialize time vector and eye position array
+time_points = zeros(2 * n_fix-1, 1);
+eye_position = zeros(2 * n_fix-1, 1);
+
+% Start at display A
+current_time = 0;
+
+for i = 1:n_fix
+    % Fixation on display
+    eye_position(2*i - 1) = seq_numeric(mod(i-1, length(sequence)) + 1);  % A -> B -> C -> D -> A...
+    time_points(2*i - 1) = current_time;
+    current_time = current_time + fix_time(i);
+    
+    % Saccade (if not the last fixation)
+    if i < n_fix
+        eye_position(2*i) = NaN;  % No display viewed during saccades
+        time_points(2*i) = current_time;
+        current_time = current_time + sac_time(i);
+    end
+end
+
+%% Plot the scan pattern
+figure(2)
+hold on
+
+% Plot the fixations (solid lines) using the stairs function
+stairs(time_points, eye_position, 'LineWidth', 2, 'Color', 'b');
+
+% Plot the saccades (red dashed lines)
+for i = 1:2:(2*n_fix-2)  % Iterate over every other element for 9 saccades
+    % Plot the saccade as a red dashed line
+    plot([time_points(i+1), time_points(i+2)], [eye_position(i), eye_position(i+2)], 'r--', 'LineWidth', 1.5);
+end
+
+% Labels and formatting
+xlabel('Time (s)');
+ylabel('Display (1=A, 2=B, 3=C, 4=D)');
+title('Eye Position Over Time (10 Fixations)');
+yticks([1 2 3 4]);
+yticklabels({'A', 'B', 'C', 'D'});
+grid on;
+legend({'Fixations', 'Saccades'}, 'Location', 'best');
+hold off;
