@@ -56,6 +56,7 @@ fix_dist = makedist('Lognormal','mu', 0, 'sigma',0.5);
 % distributed
 sac_dist = makedist('Normal','mu',0.03,'sigma',0.003);
 
+% rng('default') % uncomment this if we want these values to never change
 fix_time = random(fix_dist,10,1);
 % now visualizing the lognormal distribution:
 figure(1)
