@@ -1,11 +1,13 @@
-function [rel_probability,next_display] = NextDisplay(seq_numeric,increase_S_d)
+function [rel_probability,next_display] = NextDisplay(seq_numeric,increase_S_d,decrease_Ef_d)
 %% Purpose: This function takes in the numeric equivalent of display name,
 % calculates the absolute probability of transitioning from that display to
 % all other displays, and normalizes it to a relative probability, and
 % determines the next display the operator will fixate on.
-% Inputs: A number representing the current display 'seq_numeric', and
+% Inputs: A number representing the current display 'seq_numeric',
 % whether this simulation is being run before or after we increase the
-% salience of display D 'increase_S_d' (either true or false)
+% salience of display D 'increase_S_d' (either true or false), and whether
+% this simulation is being run before or after we decrease the effort of
+% transitioning to display D 'decrease_Ef_d'(either true or false)
 % Outputs: Vector of RELATIVE probabilities 'rel_probability' in the form 
 % [p(A) p(B) p(C) p(D)]./sum([p(A) p(B) p(C) p(D)]) and a number
 % representing the next display 'next_display'
@@ -41,10 +43,15 @@ function [rel_probability,next_display] = NextDisplay(seq_numeric,increase_S_d)
 % All the combinations of transition effort:
 Ef_AB = 1;
 Ef_AC = 1;
-Ef_AD = 5;
 Ef_BC = 3;
 Ef_BD = 6;
 Ef_CD = 4.5;
+Ef_AD = 5;
+if decrease_Ef_d
+    Ef_AD = Ef_AD - 3;
+    Ef_BD = Ef_BD - 3;
+    Ef_CD = Ef_CD - 3;
+end
 
 % Combining into vectors
 S_vec = [S_A S_B S_C S_D];
