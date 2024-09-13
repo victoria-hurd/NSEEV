@@ -98,13 +98,16 @@ current_time = 0;
 current_display=1;
 
 for i = 1:n_fix
+
     % Fixation on display
-    eye_position(2*i - 1) = seq_numeric(mod(i-1, length(sequence)) + 1);  % A -> B -> C -> D -> A...
+    %eye_position(2*i - 1) = seq_numeric(mod(i-1, length(sequence)) + 1);  % A -> B -> C -> D -> A...
+    [~,current_display] = NextDisplay(current_display);
+    eye_position(2*i - 1) = current_display;
     time_points(2*i - 1) = current_time;
     current_time = current_time + fix_time(i);
     
     % Saccade (if not the last fixation)
-    if i < n_fix
+    if i < n_fix+1
         eye_position(2*i) = NaN;  % No display viewed during saccades
         time_points(2*i) = current_time;
         current_time = current_time + sac_time(i);
@@ -119,6 +122,7 @@ hold on
 stairs(time_points, eye_position, 'LineWidth', 2, 'Color', 'b');
 
 % Plot the saccades (red dashed lines)
+plot([0 time_points(1)],[1 eye_position(1)],'r--', 'LineWidth', 1.5);
 for i = 1:2:(2*n_fix-2)  % Iterate over every other element for 9 saccades
     % Plot the saccade as a red dashed line
     plot([time_points(i+1), time_points(i+2)], [eye_position(i), eye_position(i+2)], 'r--', 'LineWidth', 1.5);
@@ -130,6 +134,7 @@ ylabel('Display (1=A, 2=B, 3=C, 4=D)');
 title('Eye Position Over Time (10 Fixations)');
 yticks([1 2 3 4]);
 yticklabels({'A', 'B', 'C', 'D'});
+ylim([1 4]);
 grid on;
 legend({'Fixations', 'Saccades'}, 'Location', 'best');
 hold off;

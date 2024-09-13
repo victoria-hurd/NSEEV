@@ -95,8 +95,16 @@ eye_position = zeros(2 * n_fix-1, 1);
 
 % Start at display A
 current_time = 0;
+current_display=1;
+
+% Initializing probabilities when starting at display A
+% Calculate probabilities
+prob_B = S_B - Ef_AB + Ex_B + V_B;
+prob_C = S_C - Ef_AC + Ex_C + V_C;
+prob_D = S_D - Ef_AD + Ex_D + V_D;
 
 for i = 1:n_fix
+
     % Fixation on display
     eye_position(2*i - 1) = seq_numeric(mod(i-1, length(sequence)) + 1);  % A -> B -> C -> D -> A...
     time_points(2*i - 1) = current_time;
