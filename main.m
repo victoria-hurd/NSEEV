@@ -56,38 +56,32 @@ fix_dist = makedist('Lognormal','mu', 0, 'sigma',0.5);
 % distributed
 sac_dist = makedist('Normal','mu',0.03,'sigma',0.003);
 
-% rng('default') % uncomment this if we want these values to never change
 fix_time = random(fix_dist,n_fix,1);
 % now visualizing the lognormal distribution:
-figure(1)
-subplot(1,2,1)
-histfit(fix_time,3,'lognormal')
-title('Fixation Time Lognormal Dist')
+fig = figure(1);
+subplot(1,2,1); hold on; grid minor;
+histfit(fix_time,5,'lognormal')
+set(gca,'FontSize',20);
+title('Fixation Time Lognormal Dist','Interpreter','latex','FontSize',25)
 
 sac_time = random(sac_dist,n_fix,1);
 % now visualizing the lognormal distribution:
-subplot(1,2,2)
-histfit(sac_time,3,'normal')
-title('Saccade Time Normal Dist')
-sgtitle('Distributions for 10 Random Numbers')
+subplot(1,2,2); hold on; grid minor;
+histfit(sac_time,5,'normal')
+set(gca,'FontSize',20);
+title('Saccade Time Normal Dist','Interpreter','latex','FontSize',25)
 
-%% NSEEV Probability Model for Next Display: 
-%Need to write a function that can take in current display and export next
-%display
+han=axes(fig,'visible','off'); 
+han.Title.Visible='on';
+han.XLabel.Visible='on';
+han.YLabel.Visible='on';
+ylabel(han,'Frequency','Interpreter','latex','FontSize',25);
+xlabel(han,'Time, s','Interpreter','latex','FontSize',25)
 
-
-%% 1. Simulation of the Eye Position
-% start each scan at A
-% eye position as a function of time for 10 fixations
-    %%% did we ask Torin about how to choose the sequence? ie random,
-    %%% optimize, or we decide? For now, I'm just picking A, B, C, D
-
-% timevec will be like [fix_time, sac_time, fix_time, sac_time ...]
+sgtitle('Distributions for 10 Random Numbers','Interpreter','latex','FontSize',30)
+set(gcf,'Position',get(0,'Screensize'));
 
 %% 1. Simulation of the Eye Position
-% Sequence of displays: A -> B -> C -> D
-sequence = {'A', 'B', 'C', 'D'};
-seq_numeric = [1, 2, 3, 4];  % Mapping A = 1, B = 2, C = 3, D = 4 for plotting along the y axis
 
 % Initialize time vector and eye position array
 time_points = zeros(2 * n_fix-1, 1);
@@ -100,7 +94,6 @@ current_display=1;
 for i = 1:n_fix
 
     % Fixation on display
-    %eye_position(2*i - 1) = seq_numeric(mod(i-1, length(sequence)) + 1);  % A -> B -> C -> D -> A...
     [~,current_display] = NextDisplay(current_display,false,false);
     eye_position(2*i - 1) = current_display;
     time_points(2*i - 1) = current_time;
@@ -119,24 +112,26 @@ figure(2)
 hold on
 
 % Plot the fixations (solid lines) using the stairs function
-stairs(time_points, eye_position, 'LineWidth', 2, 'Color', 'b');
+stairs(time_points, eye_position, 'LineWidth', 3, 'Color', 'b');
 
 % Plot the saccades (red dashed lines)
-plot([0 time_points(1)],[1 eye_position(1)],'r--', 'LineWidth', 1.5);
+plot([0 time_points(1)],[1 eye_position(1)],'r--', 'LineWidth', 3);
 for i = 1:2:(2*n_fix-2)  % Iterate over every other element for 9 saccades
     % Plot the saccade as a red dashed line
-    plot([time_points(i+1), time_points(i+2)], [eye_position(i), eye_position(i+2)], 'r--', 'LineWidth', 1.5);
+    plot([time_points(i+1), time_points(i+2)], [eye_position(i), eye_position(i+2)], 'r--', 'LineWidth', 3);
 end
 
 % Labels and formatting
-xlabel('Time (s)');
-ylabel('Display (1=A, 2=B, 3=C, 4=D)');
-title('Eye Position Over Time (10 Fixations)');
 yticks([1 2 3 4]);
 yticklabels({'A', 'B', 'C', 'D'});
 ylim([1 4]);
+set(gca,'FontSize',20);
+xlabel('Time, s','Interpreter','latex','FontSize',25);
+ylabel('Display','Interpreter','latex','FontSize',25);
+title('Eye Position Over Time (10 Fixations)','Interpreter','latex','FontSize',30);
 grid on;
-legend({'Fixations', 'Saccades'}, 'Location', 'best');
+legend({'Fixations', 'Saccades'}, 'Location', 'best','Interpreter','latex','FontSize',20);
+set(gcf,'Position',get(0,'Screensize'));
 hold off;
 
 %% 2. Monte Carlo Simulations
@@ -208,6 +203,7 @@ han.YLabel.Visible='on';
 ylabel(han,'Frequency','Interpreter','latex','FontSize',25);
 xlabel(han,'Relative Time','Interpreter','latex','FontSize',25)
 sgtitle('Relative Time Spent on Each Display','Interpreter','latex','FontSize',25);
+set(gcf,'Position',get(0,'Screensize'));
 
 %% 3. Wind Alert Problem
 
@@ -293,6 +289,7 @@ set(gca,'FontSize',20);
 title('Time to Detect Wind Alert','Interpreter','latex','FontSize',25)
 xlabel('Time, s','Interpreter','latex','FontSize',25);
 ylabel('Frequency','Interpreter','latex','FontSize',25)
+set(gcf,'Position',get(0,'Screensize'));
 hold off;
 
 %% 4. Wind Alert Problem with Increased Salience
@@ -379,8 +376,8 @@ set(gca,'FontSize',20);
 title('Time to Detect Wind Alert','Interpreter','latex','FontSize',25)
 xlabel('Time, s','Interpreter','latex','FontSize',25);
 ylabel('Frequency','Interpreter','latex','FontSize',25)
+set(gcf,'Position',get(0,'Screensize'));
 hold off;
-
 
 %% 4. Wind Alert Problem with Increased Salience
 
@@ -466,4 +463,5 @@ set(gca,'FontSize',20);
 title('Time to Detect Wind Alert','Interpreter','latex','FontSize',25)
 xlabel('Time, s','Interpreter','latex','FontSize',25);
 ylabel('Frequency','Interpreter','latex','FontSize',25)
+set(gcf,'Position',get(0,'Screensize'));
 hold off;
