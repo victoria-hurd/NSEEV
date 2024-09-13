@@ -150,6 +150,7 @@ current_time = 0;
 % count of time spent fixating on each display
 time_count_fix = zeros(1,4);
 time_count_sim = zeros(n_sim,4);
+
 for j = 1:n_sim
     for i = 1:n_fix
     
@@ -173,6 +174,7 @@ for j = 1:n_sim
     % resetting
     time_count_fix = zeros(1,4);
     current_time = 0;
+    current_display = 1;
 
 end
 
@@ -206,3 +208,76 @@ han.YLabel.Visible='on';
 ylabel(han,'Frequency','Interpreter','latex','FontSize',25);
 xlabel(han,'Relative Time','Interpreter','latex','FontSize',25)
 sgtitle('Relative Time Spent on Each Display','Interpreter','latex','FontSize',25);
+
+%% 3. Wind Alert Problem
+
+% number of simulations
+n_sim = 1000;
+% initializing
+current_display = 1;
+current_time = 0;
+wind_alert_detected = 0;
+% count of time spent fixating on each display
+time_count_sim = zeros(n_sim,1);
+
+for j = 1:n_sim
+    while wind_alert_detected == 0 % not terminating until wind alert has been detected
+
+        % fixation and saccade time
+        fix_time = random(fix_dist,1,1);
+        sac_time = random(sac_dist,1,1);
+
+        % keeping track of all time
+        current_time = current_time + sac_time + fix_time;
+
+        % wind alert occurs at current_time = 10
+        if current_time >= 10 
+
+            % Fixation on display
+            [~,current_display] = NextDisplay(current_display);
+        
+            if current_display == 4
+                % essentially, flipping a weighted coin where the prob
+                % of "success" (detecting the wind alert)=0.8
+                wind_alert_detected = binornd(1,0.8);                
+            end
+        end
+
+    end
+
+    % time at which wind alert was detected is randomly chosen from a
+    % uniform distribution from 0 to the fixation time
+
+    if current_time-fix_time < 10 % if the wind alert went off while on display D
+        time_detected = unifrnd(0,current_time-10);
+        fix_time = 0;
+    else % if wind alert went off while on any other display
+        time_detected = unifrnd(0,fix_time);
+    end
+
+    % we already added the fixation time, so we have to subtract out the
+    % fixation time and add the time within the fixation that the wind
+    % alert was detected
+    current_time = current_time - fix_time + time_detected;
+
+    % finding time it takes to detect the wind alarm
+    time_count_sim(j) = current_time-10;
+    if time_count_sim(j) < 0
+        disp(j)
+    end
+
+    % resetting
+    current_time = 0;
+    current_display = 1;
+    wind_alert_detected = 0;
+
+end
+
+% plotting a histogram for each display
+figure(); hold on; grid minor;
+histogram(time_count_sim);
+set(gca,'FontSize',20);
+title('Time to Detect Wind Alert','Interpreter','latex','FontSize',25)
+xlabel('Time, s','Interpreter','latex','FontSize',25);
+ylabel('Frequency','Interpreter','latex','FontSize',25)
+hold off;

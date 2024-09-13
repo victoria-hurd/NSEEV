@@ -165,10 +165,104 @@ for j = 1:n_sim
         time_count_fix(current_display) = time_count_fix(current_display)+fix_time;
     end
 
+    % finding relative time on each display
+    time_count_sim(j,:) = time_count_fix./current_time;
+    % Note that these do not add up to 1 because we're dividing by the
+    % TOTAL time (i.e., including the saccade time)
+
     % resetting
     time_count_fix = zeros(1,4);
     current_time = 0;
 
+end
+
+% plotting a histogram for each display
+fig = figure(); hold on; 
+subplot(2,2,1); hold on; grid minor;
+histogram(time_count_sim(:,1));
+title('Display A','Interpreter','latex')
+set(gca,'FontSize',20);
+hold off;
+subplot(2,2,2); hold on; grid minor;
+histogram(time_count_sim(:,2));
+title('Display B','Interpreter','latex')
+set(gca,'FontSize',20);
+hold off;
+subplot(2,2,3); hold on; grid minor;
+histogram(time_count_sim(:,3));
+title('Display C','Interpreter','latex')
+set(gca,'FontSize',20);
+hold off;
+subplot(2,2,4); hold on; grid minor;
+histogram(time_count_sim(:,4));
+title('Display D','Interpreter','latex')
+set(gca,'FontSize',20);
+hold off;
+
+han=axes(fig,'visible','off'); 
+han.Title.Visible='on';
+han.XLabel.Visible='on';
+han.YLabel.Visible='on';
+ylabel(han,'Frequency','Interpreter','latex','FontSize',25);
+xlabel(han,'Relative Time','Interpreter','latex','FontSize',25)
+sgtitle('Relative Time Spent on Each Display','Interpreter','latex','FontSize',25);
+
+%% 3. Wind Alert Problem
+
+% if current_time >= 10 && current_display == 4
+%       80% chance we catch alert, 20% chance we do not
+% end
+
+% number of simulations
+n_sim = 1000;
+% initializing
+current_display = 1;
+current_time = 0;
+wind_alert_detected = 0;
+% count of time spent fixating on each display
+time_count_sim = zeros(n_sim,1);
+
+for j = 1:n_sim
+    while wind_alert_detected == 0 % not terminating until wind alert has been detected
+
+        % fixation and saccade time
+        fix_time = random(fix_dist,1,1);
+        sac_time = random(sac_dist,1,1);
+
+        % keeping track of all time
+        current_time = current_time + sac_time + fix_time;
+
+        % wind alert occurs at current_time = 10
+        if current_time >= 10 
+
+            % Fixation on display
+            [~,current_display] = NextDisplay(current_display);
+        
+            if current_display == 4
+                % essentially, flipping a weighted coin where the prob
+                % of "success" (detecting the wind alert)=0.8
+                wind_alert_detected = binorand(1,0.8);                
+            end
+        end
+
+    end
+
+    % time at which wind alert was detected is randomly chosen from a
+    % uniform distribution from 0 to the fixation time
+    time_detected = unifrnd(0,fix_time);
+
+    % we already added the fixation time, so we have to subtract out the
+    % fixation time and add the time within the fixation that the wind
+    % alert was detected
+    current_time = current_time - fix_time + time_detected;
+
     % finding relative time on each display
-    time_count_sim(j,:) = time_count_fix./current_time;
+    time_count_sim(j) = time_count_fix./current_time;
+    % Note that these do not add up to 1 because we're dividing by the
+    % TOTAL time (i.e., including the saccade time)
+
+    % resetting
+    time_count_fix = zeros(1,4);
+    current_time = 0;
+
 end
