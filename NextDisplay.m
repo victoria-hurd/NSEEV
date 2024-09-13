@@ -1,9 +1,11 @@
-function [rel_probability,next_display] = NextDisplay(seq_numeric)
+function [rel_probability,next_display] = NextDisplay(seq_numeric,increase_S_d)
 %% Purpose: This function takes in the numeric equivalent of display name,
 % calculates the absolute probability of transitioning from that display to
 % all other displays, and normalizes it to a relative probability, and
 % determines the next display the operator will fixate on.
-% Inputs: A number representing the current display 'seq_numeric'
+% Inputs: A number representing the current display 'seq_numeric', and
+% whether this simulation is being run before or after we increase the
+% salience of display D 'increase_S_d' (either true or false)
 % Outputs: Vector of RELATIVE probabilities 'rel_probability' in the form 
 % [p(A) p(B) p(C) p(D)]./sum([p(A) p(B) p(C) p(D)]) and a number
 % representing the next display 'next_display'
@@ -28,7 +30,11 @@ function [rel_probability,next_display] = NextDisplay(seq_numeric)
     V_C = 1;
 
     % D (emergency notification)
-    S_D = 2;
+    if increase_S_d
+        S_D = 5;
+    else
+        S_D = 2;
+    end
     Ex_D = 1;
     V_D = 5;
 
