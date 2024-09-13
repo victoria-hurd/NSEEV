@@ -1,9 +1,11 @@
-function [rel_probability,next_display] = NextDisplay(seq_numeric)
+function [rel_probability,next_display] = NextDisplay(seq_numeric,increase_S_d,decrease_Ef_d)
 %% Purpose: This function takes in the numeric equivalent of display name,
 % calculates the absolute probability of transitioning from that display to
 % all other displays, and normalizes it to a relative probability, and
 % determines the next display the operator will fixate on.
-% Inputs: A number representing the current display 'seq_numeric'
+% Inputs: A number representing the current display 'seq_numeric', and
+% whether this simulation is being run before or after we increase the
+% salience of display D 'increase_S_d' (either true or false)
 % Outputs: Vector of RELATIVE probabilities 'rel_probability' in the form 
 % [p(A) p(B) p(C) p(D)]./sum([p(A) p(B) p(C) p(D)]) and a number
 % representing the next display 'next_display'
@@ -28,17 +30,26 @@ function [rel_probability,next_display] = NextDisplay(seq_numeric)
     V_C = 1;
 
     % D (emergency notification)
-    S_D = 2;
+    if increase_S_d
+        S_D = 5;
+    else
+        S_D = 2;
+    end
     Ex_D = 1;
     V_D = 5;
 
 % All the combinations of transition effort:
 Ef_AB = 1;
 Ef_AC = 1;
-Ef_AD = 5;
 Ef_BC = 3;
 Ef_BD = 6;
 Ef_CD = 4.5;
+Ef_AD = 5;
+if decrease_Ef_d
+    Ef_AD = Ef_BD - 3;
+    Ef_CD = Ef_BD - 3;
+    Ef_AD = Ef_BD - 3;
+end
 
 % Combining into vectors
 S_vec = [S_A S_B S_C S_D];
@@ -72,12 +83,22 @@ rel_probability = abs_probability./sum(abs_probability);
 
 %% Next display
 % Cumulative probability
+cuml_probability = zeros(1,length(rel_probability)+1);
 for j=1:length(rel_probability)
        cuml_probability(j+1) = sum(rel_probability(1:j));
-    end
-cuml_probability = [rel_probability(1) rel_probability(1)+rel_probability(2)...
-    rel_probability(1)+rel_probability(2)+rel_probability(3) sum(rel_probability)];
+end
 
 % fitting a uniform distribution
+next_fix = unifrnd(0,cuml_probability(end));
+
+% check in which interval of the cuml_probability is this element 
+for j=1:length(rel_probability)
+   if next_fix >= cuml_probability(j) && next_fix < cuml_probability(j+1)
+       break
+   end
+end
+
+% determine next display
+next_display = j;
 
 end

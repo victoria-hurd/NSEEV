@@ -101,7 +101,7 @@ for i = 1:n_fix
 
     % Fixation on display
     %eye_position(2*i - 1) = seq_numeric(mod(i-1, length(sequence)) + 1);  % A -> B -> C -> D -> A...
-    [~,current_display] = NextDisplay(current_display,false);
+    [~,current_display] = NextDisplay(current_display,false,false);
     eye_position(2*i - 1) = current_display;
     time_points(2*i - 1) = current_time;
     current_time = current_time + fix_time(i);
@@ -155,7 +155,7 @@ for j = 1:n_sim
     for i = 1:n_fix
     
         % Fixation on display
-        [~,current_display] = NextDisplay(current_display,false);
+        [~,current_display] = NextDisplay(current_display,false,false);
 
         % fixation and saccade time
         fix_time = random(fix_dist,1,1);
@@ -234,7 +234,7 @@ for j = 1:n_sim
         if current_time >= 10 
 
             % Fixation on display
-            [~,current_display] = NextDisplay(current_display,false);
+            [~,current_display] = NextDisplay(current_display,false,false);
         
             if current_display == 4
                 % essentially, flipping a weighted coin where the prob
@@ -279,10 +279,11 @@ ques_3_5prctile = prctile(time_count_sim,5);
 ques_3_95prctile = prctile(time_count_sim,95);
 
 % plotting a histogram for each display
-figure(); hold on; grid minor;
+figure(); hold on; grid minor; 
+subtitle('Question 3','FontSize',15,'Interpreter','latex');
 xline(ques_3_5prctile,'--','LineWidth',3,'Color','r')
 xline(ques_3_50prctile,'--','LineWidth',3,'Color','g')
-xline(ques_3_95prctile,'--','LineWidth',3,'Color','c')
+xline(ques_3_95prctile,'--','LineWidth',3,'Color','m')
 histogram(time_count_sim,NumBins=30);
 legend(strcat('5th \%-ile= ',num2str(round(ques_3_5prctile,2))),...
     strcat('Median=',num2str(round(ques_3_50prctile,2))),...
@@ -319,7 +320,7 @@ for j = 1:n_sim
         if current_time >= 10 
 
             % Fixation on display
-            [~,current_display] = NextDisplay(current_display,true);
+            [~,current_display] = NextDisplay(current_display,true,false);
         
             if current_display == 4
                 % essentially, flipping a weighted coin where the prob
@@ -364,14 +365,102 @@ ques_4_5prctile = prctile(time_count_sim,5);
 ques_4_95prctile = prctile(time_count_sim,95);
 
 % plotting a histogram for each display
-figure(); hold on; grid minor;
+figure(); hold on; grid minor; 
+subtitle('Increase Salience','FontSize',15,'Interpreter','latex');
 xline(ques_4_5prctile,'--','LineWidth',3,'Color','r')
 xline(ques_4_50prctile,'--','LineWidth',3,'Color','g')
-xline(ques_4_95prctile,'--','LineWidth',3,'Color','c')
+xline(ques_4_95prctile,'--','LineWidth',3,'Color','m')
 histogram(time_count_sim,NumBins=30);
 legend(strcat('5th \%-ile= ',num2str(round(ques_4_5prctile,2))),...
     strcat('Median=',num2str(round(ques_4_50prctile,2))),...
     strcat('95th \%-ile=',num2str(round(ques_4_95prctile,2))),'Data',...
+    'Interpreter','latex');
+set(gca,'FontSize',20);
+title('Time to Detect Wind Alert','Interpreter','latex','FontSize',25)
+xlabel('Time, s','Interpreter','latex','FontSize',25);
+ylabel('Frequency','Interpreter','latex','FontSize',25)
+hold off;
+
+
+%% 4. Wind Alert Problem with Increased Salience
+
+% number of simulations
+n_sim = 1000;
+% initializing
+current_display = 1;
+current_time = 0;
+wind_alert_detected = 0;
+% count of time spent fixating on each display
+time_count_sim = zeros(n_sim,1);
+
+for j = 1:n_sim
+    while wind_alert_detected == 0 % not terminating until wind alert has been detected
+
+        % fixation and saccade time
+        fix_time = random(fix_dist,1,1);
+        sac_time = random(sac_dist,1,1);
+
+        % keeping track of all time
+        current_time = current_time + sac_time + fix_time;
+
+        % wind alert occurs at current_time = 10
+        if current_time >= 10 
+
+            % Fixation on display
+            [~,current_display] = NextDisplay(current_display,false,true);
+        
+            if current_display == 4
+                % essentially, flipping a weighted coin where the prob
+                % of "success" (detecting the wind alert)=0.8
+                wind_alert_detected = binornd(1,0.8);                
+            end
+        end
+
+    end
+
+    % time at which wind alert was detected is randomly chosen from a
+    % uniform distribution from 0 to the fixation time
+
+    if current_time-fix_time < 10 % if the wind alert went off while on display D
+        time_detected = unifrnd(0,current_time-10);
+        fix_time = 0;
+    else % if wind alert went off while on any other display
+        time_detected = unifrnd(0,fix_time);
+    end
+
+    % we already added the fixation time, so we have to subtract out the
+    % fixation time and add the time within the fixation that the wind
+    % alert was detected
+    current_time = current_time - fix_time + time_detected;
+
+    % finding time it takes to detect the wind alarm
+    time_count_sim(j) = current_time-10;
+    if time_count_sim(j) < 0
+        disp(j)
+    end
+
+    % resetting
+    current_time = 0;
+    current_display = 1;
+    wind_alert_detected = 0;
+
+end
+
+% calculating the 50th (median), 5th, and 95th percentiles
+ques_5_50prctile = prctile(time_count_sim,50);
+ques_5_5prctile = prctile(time_count_sim,5);
+ques_5_95prctile = prctile(time_count_sim,95);
+
+% plotting a histogram for each display
+figure(); hold on; grid minor; 
+subtitle('Decrease Effort','FontSize',15,'Interpreter','latex');
+xline(ques_5_5prctile,'--','LineWidth',3,'Color','r')
+xline(ques_5_50prctile,'--','LineWidth',3,'Color','g')
+xline(ques_5_95prctile,'--','LineWidth',3,'Color','m')
+histogram(time_count_sim,NumBins=30);
+legend(strcat('5th \%-ile= ',num2str(round(ques_5_5prctile,2))),...
+    strcat('Median=',num2str(round(ques_5_50prctile,2))),...
+    strcat('95th \%-ile=',num2str(round(ques_5_95prctile,2))),'Data',...
     'Interpreter','latex');
 set(gca,'FontSize',20);
 title('Time to Detect Wind Alert','Interpreter','latex','FontSize',25)
