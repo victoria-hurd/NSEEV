@@ -138,3 +138,71 @@ ylim([1 4]);
 grid on;
 legend({'Fixations', 'Saccades'}, 'Location', 'best');
 hold off;
+
+%% 2. Monte Carlo Simulations
+% number of simulations
+n_sim = 1000;
+% number of fixations (updating)
+n_fix = 100;
+% initializing
+current_display = 1;
+current_time = 0;
+% count of time spent fixating on each display
+time_count_fix = zeros(1,4);
+time_count_sim = zeros(n_sim,4);
+for j = 1:n_sim
+    for i = 1:n_fix
+    
+        % Fixation on display
+        [~,current_display] = NextDisplay(current_display);
+
+        % fixation and saccade time
+        fix_time = random(fix_dist,1,1);
+        sac_time = random(sac_dist,1,1);
+
+        current_time = current_time + sac_time + fix_time;
+
+        time_count_fix(current_display) = time_count_fix(current_display)+fix_time;
+    end
+
+    % finding relative time on each display
+    time_count_sim(j,:) = time_count_fix./current_time;
+    % Note that these do not add up to 1 because we're dividing by the
+    % TOTAL time (i.e., including the saccade time)
+
+    % resetting
+    time_count_fix = zeros(1,4);
+    current_time = 0;
+
+end
+
+% plotting a histogram for each display
+fig = figure(); hold on; 
+subplot(2,2,1); hold on; grid minor;
+histogram(time_count_sim(:,1));
+title('Display A','Interpreter','latex')
+set(gca,'FontSize',20);
+hold off;
+subplot(2,2,2); hold on; grid minor;
+histogram(time_count_sim(:,2));
+title('Display B','Interpreter','latex')
+set(gca,'FontSize',20);
+hold off;
+subplot(2,2,3); hold on; grid minor;
+histogram(time_count_sim(:,3));
+title('Display C','Interpreter','latex')
+set(gca,'FontSize',20);
+hold off;
+subplot(2,2,4); hold on; grid minor;
+histogram(time_count_sim(:,4));
+title('Display D','Interpreter','latex')
+set(gca,'FontSize',20);
+hold off;
+
+han=axes(fig,'visible','off'); 
+han.Title.Visible='on';
+han.XLabel.Visible='on';
+han.YLabel.Visible='on';
+ylabel(han,'Frequency','Interpreter','latex','FontSize',25);
+xlabel(han,'Relative Time','Interpreter','latex','FontSize',25)
+sgtitle('Relative Time Spent on Each Display','Interpreter','latex','FontSize',25);

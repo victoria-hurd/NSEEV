@@ -97,21 +97,17 @@ eye_position = zeros(2 * n_fix-1, 1);
 current_time = 0;
 current_display=1;
 
-% Initializing probabilities when starting at display A
-% Calculate probabilities
-prob_B = S_B - Ef_AB + Ex_B + V_B;
-prob_C = S_C - Ef_AC + Ex_C + V_C;
-prob_D = S_D - Ef_AD + Ex_D + V_D;
-
 for i = 1:n_fix
 
     % Fixation on display
-    eye_position(2*i - 1) = seq_numeric(mod(i-1, length(sequence)) + 1);  % A -> B -> C -> D -> A...
+    %eye_position(2*i - 1) = seq_numeric(mod(i-1, length(sequence)) + 1);  % A -> B -> C -> D -> A...
+    [~,current_display] = NextDisplay(current_display);
+    eye_position(2*i - 1) = current_display;
     time_points(2*i - 1) = current_time;
     current_time = current_time + fix_time(i);
     
     % Saccade (if not the last fixation)
-    if i < n_fix
+    if i < n_fix+1
         eye_position(2*i) = NaN;  % No display viewed during saccades
         time_points(2*i) = current_time;
         current_time = current_time + sac_time(i);
@@ -126,6 +122,7 @@ hold on
 stairs(time_points, eye_position, 'LineWidth', 2, 'Color', 'b');
 
 % Plot the saccades (red dashed lines)
+plot([0 time_points(1)],[1 eye_position(1)],'r--', 'LineWidth', 1.5);
 for i = 1:2:(2*n_fix-2)  % Iterate over every other element for 9 saccades
     % Plot the saccade as a red dashed line
     plot([time_points(i+1), time_points(i+2)], [eye_position(i), eye_position(i+2)], 'r--', 'LineWidth', 1.5);
@@ -137,6 +134,41 @@ ylabel('Display (1=A, 2=B, 3=C, 4=D)');
 title('Eye Position Over Time (10 Fixations)');
 yticks([1 2 3 4]);
 yticklabels({'A', 'B', 'C', 'D'});
+ylim([1 4]);
 grid on;
 legend({'Fixations', 'Saccades'}, 'Location', 'best');
 hold off;
+
+%% 2. Monte Carlo Simulations
+% number of simulations
+n_sim = 1000;
+% number of fixations (updating)
+n_fix = 100;
+% initializing
+current_display = 1;
+current_time = 0;
+% count of time spent fixating on each display
+time_count_fix = zeros(1,4);
+time_count_sim = zeros(n_sim,4);
+for j = 1:n_sim
+    for i = 1:n_fix
+    
+        % Fixation on display
+        [~,current_display] = NextDisplay(current_display);
+
+        % fixation and saccade time
+        fix_time = random(fix_dist,1,1);
+        sac_time = random(sac_dist,1,1);
+
+        current_time = current_time + sac_time + fix_time;
+
+        time_count_fix(current_display) = time_count_fix(current_display)+fix_time;
+    end
+
+    % resetting
+    time_count_fix = zeros(1,4);
+    current_time = 0;
+
+    % finding relative time on each display
+    time_count_sim(j,:) = time_count_fix./current_time;
+end
